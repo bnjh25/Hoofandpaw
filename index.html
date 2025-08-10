@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Paw or Hoof</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #fcfcff;
+    --panel: #ffffff;
+    --ink: #1f2430;
+    --muted: #6b7280;
+    --paw: #4caf50;
+    --hoof: #ff7a59;
+    --accent: #6f7cff;
+    --shadow: 0 10px 30px rgba(31,36,48,.12);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100svh;
+    font-family:"Baloo 2", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 400px at 10% -10%, #f1f5ff 0%, transparent 60%),
+      radial-gradient(900px 400px at 110% 0%, #fff2ee 0%, transparent 55%),
+      var(--bg);
+    display:grid;
+    place-items:center;
+    padding:24px;
+  }
+  .app{
+    width:min(900px, 100%);
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:24px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:10px;
+  }
+  .logo{
+    font-size:28px;
+    line-height:1;
+  }
+  h1{
+    font-size:clamp(20px, 3.4vw, 32px);
+    margin:0;
+  }
+  .subtitle{
+    color:var(--muted);
+    margin-top:-2px;
+  }
+  .hud{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 18px;
+    align-items:center;
+    justify-content:space-between;
+    margin:14px 0 18px;
+  }
+  .pill{
+    background:#f3f4f6;
+    border-radius:999px;
+    padding:8px 14px;
+    font-weight:600;
+  }
+  .progress{
+    flex:1;
+    height:12px;
+    background:#eef0f5;
+    border-radius:999px;
+    position:relative;
+    overflow:hidden;
+    min-width:180px;
+  }
+  .bar{
+    position:absolute; inset:0;
+    width:0%;
+    background:linear-gradient(90deg, #6f7cff, #75d5ff);
+    border-radius:999px;
+    transition:width .35s ease;
+  }
+  .card{
+    background:#fff;
+    border:2px dashed #e6e8ee;
+    border-radius:16px;
+    padding:18px;
+  }
+  .animal{
+    display:grid;
+    grid-template-columns: 1fr;
+    place-items:center;
+    padding:10px 8px 2px;
+    gap:8px;
+  }
+  .emoji{
+    font-size:min(28vw, 160px);
+    line-height:1;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,.08));
+  }
+  .name{
+    font-size: clamp(22px, 4.5vw, 34px);
+    font-weight:800;
+    letter-spacing:.3px;
+  }
+  .difficulty{
+    color:var(--muted);
+    font-weight:600;
+  }
+
+  .buttons{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    margin-top:14px;
+  }
+  button.choice{
+    border:none;
+    border-radius:14px;
+    padding:16px 18px;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight:800;
+    cursor:pointer;
+    box-shadow: var(--shadow);
+    transition: transform .06s ease, filter .06s ease, opacity .25s ease;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  button.choice:active{ transform: translateY(2px) scale(.99); }
+  .paw{ background:linear-gradient(180deg, #7bd87b, var(--paw)); color:#062a06; }
+  .hoof{ background:linear-gradient(180deg, #ffa68f, var(--hoof)); color:#3a130b; }
+  .hint{
+    text-align:center;
+    color:var(--muted);
+    margin:10px 6px 0;
+    font-size:14px;
+  }
+  .feedback{
+    margin-top:14px;
+    border-radius:12px;
+    padding:12px 14px;
+    font-weight:700;
+    display:none;
+  }
+  .ok{ background:#e8f9f0; color:#0d6b3a; }
+  .no{ background:#fff2f0; color:#8b1c10; }
+
+  .footer{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    justify-content:space-between;
+    align-items:center;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .kbd{
+    background:#f1f3f8; padding:2px 8px; border-radius:6px; border:1px solid #e3e6ee; font-weight:800;
+  }
+
+  .overlay{
+    position:fixed; inset:0; display:none; place-items:center; background:rgba(18,22,34,.5);
+    padding:24px; z-index:5;
+  }
+  .modal{
+    width:min(700px, 100%);
+    background:#fff; border-radius:18px; box-shadow:var(--shadow);
+    padding:22px;
+    text-align:center;
+  }
+  .modal h2{ margin:0 0 6px 0; font-size:clamp(22px, 3.6vw, 30px);}
+  .big{
+    font-size: clamp(28px, 6vw, 46px);
+    margin:12px 0 4px;
+  }
+  .modal .actions{ display:flex; gap:10px; justify-content:center; margin-top:12px;}
+  .ghost{
+    background:#f3f4f7; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:800;
+  }
+  .primary{
+    background:linear-gradient(90deg, #6f7cff, #75d5ff); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:800;
+  }
+
+  @media (max-width:480px){
+    .buttons{ gap:10px; }
+    button.choice{ padding:14px 12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Paw or Hoof game">
+    <header>
+      <div class="logo">🐾🦶</div>
+      <div>
+        <h1>Paw or Hoof</h1>
+        <div class="subtitle">Pick the right one to level up. Left/Right arrows work too.</div>
+      </div>
+    </header>
+
+    <div class="hud">
+      <div class="pill" id="levelPill">Level 1 • Easy</div>
+      <div class="progress" aria-label="Progress">
+        <div class="bar" id="bar"></div>
+      </div>
+      <div class="pill">Score: <span id="score">0</span></div>
+      <div class="pill">Streak: <span id="streak">0</span></div>
+      <div class="pill">Lives: <span id="lives">3</span> ❤️</div>
+    </div>
+
+    <div class="card">
+      <div class="animal" aria-live="polite">
+        <div class="emoji" id="emoji">🐶</div>
+        <div class="name" id="name">Dog</div>
+        <div class="difficulty" id="diffLabel">Easy</div>
+      </div>
+
+      <div class="buttons" role="group" aria-label="Choose Paw or Hoof">
+        <button class="choice paw" id="btnPaw" aria-keyshortcuts="ArrowLeft">🐾 Paw</button>
+        <button class="choice hoof" id="btnHoof" aria-keyshortcuts="ArrowRight">🦬 Hoof</button>
+      </div>
+
+      <div class="hint">Tip: mammals with soft padded feet and claws = likely <b>paw</b>. Ungulates (deer, cattle, horses, etc.) = <b>hoof</b>.</div>
+
+      <div class="feedback ok" id="good">Nice! ✅</div>
+      <div class="feedback no" id="bad">Not quite. ❌</div>
+    </div>
+
+    <div class="footer">
+      <div>Keyboard: <span class="kbd">← Paw</span> <span class="kbd">→ Hoof</span> • <span class="kbd">R</span> restart</div>
+      <button class="ghost" id="restart">Restart</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" aria-modal="true" role="dialog">
+    <div class="modal">
+      <div class="big" id="finalEmoji">🎉</div>
+      <h2 id="finalTitle">You finished!</h2>
+      <p id="finalText">Score: <b id="finalScore">0</b></p>
+      <div class="actions">
+        <button class="ghost" id="seeAnswers">Review answers</button>
+        <button class="primary" id="playAgain">Play again</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* --- Data --------------------------------------------------------------- */
+/* difficulty: 1 easy, 2 medium, 3 tricky  */
+const ANIMALS = [
+  // Easy (very obvious)
+  {name:"Dog", emoji:"🐶", answer:"paw", diff:1, fact:"Dogs are canids with padded paws and claws."},
+  {name:"Cat", emoji:"🐱", answer:"paw", diff:1, fact:"Cats have soft paws with retractable claws."},
+  {name:"Bear", emoji:"🐻", answer:"paw", diff:1, fact:"Bears have large padded paws with claws."},
+  {name:"Horse", emoji:"🐴", answer:"hoof", diff:1, fact:"Horses are single-toed ungulates with hooves."},
+  {name:"Cow", emoji:"🐮", answer:"hoof", diff:1, fact:"Cattle are even-toed ungulates (split hooves)."},
+  {name:"Pig", emoji:"🐷", answer:"hoof", diff:1, fact:"Pigs have cloven hooves."},
+  {name:"Deer", emoji:"🦌", answer:"hoof", diff:1, fact:"Deer are hoofed ruminants."},
+  {name:"Fox", emoji:"🦊", answer:"paw", diff:1, fact:"Foxes are canids—paws, not hooves."},
+  {name:"Panda", emoji:"🐼", answer:"paw", diff:1, fact:"Pandas have paws with a ‘pseudo-thumb’."},
+
+  // Medium (still clear but a bit broader)
+  {name:"Goat", emoji:"🐐", answer:"hoof", diff:2, fact:"Goats have cloven hooves for rocky ground."},
+  {name:"Zebra", emoji:"🦓", answer:"hoof", diff:2, fact:"Zebras are equids with hooves."},
+  {name:"Bison", emoji:"🐃", answer:"hoof", diff:2, fact:"Bovids like bison have hooves."},
+  {name:"Boar", emoji:"🐗", answer:"hoof", diff:2, fact:"Wild boars are hoofed like pigs."},
+  {name:"Lion", emoji:"🦁", answer:"paw", diff:2, fact:"Big cats = paws with claws."},
+  {name:"Wolf", emoji:"🐺", answer:"paw", diff:2, fact:"Canids have paws."},
+  {name:"Raccoon", emoji:"🦝", answer:"paw", diff:2, fact:"Raccoons have dexterous paws."},
+  {name:"Otter", emoji:"🦦", answer:"paw", diff:2, fact:"Otters have webbed paws for swimming."},
+  {name:"Kangaroo", emoji:"🦘", answer:"paw", diff:2, fact:"Macropods have forepaws and large hind feet (not hooves)."},
+  {name:"Koala", emoji:"🐨", answer:"paw", diff:2, fact:"Koalas have gripping paws with two thumbs."},
+
+  // Tricky (less familiar or deceptive appearance)
+  {name:"Camel", emoji:"🐫", answer:"hoof", diff:3, fact:"Camels are ungulates with two-toed hooves under a soft pad."},
+  {name:"Giraffe", emoji:"🦒", answer:"hoof", diff:3, fact:"Giraffes are hoofed ruminants."},
+  {name:"Hippopotamus", emoji:"🦛", answer:"hoof", diff:3, fact:"Hippos are even-toed ungulates (four hoofed toes)."},
+  {name:"Rhinoceros", emoji:"🦏", answer:"hoof", diff:3, fact:"Rhinos are odd-toed ungulates (perissodactyls)."},
+  {name:"Tapir", emoji:"🦥", answer:"hoof", diff:3, fact:"Tapirs (no emoji) are perissodactyls with hoofed toes."},
+  {name:"Red Panda", emoji:"🦊", answer:"paw", diff:3, fact:"Red pandas (not foxes!) have paws with claws."},
+  {name:"Capybara", emoji:"🐹", answer:"paw", diff:3, fact:"Capybaras have webbed paws, not hooves."},
+  {name:"Badger", emoji:"🦡", answer:"paw", diff:3, fact:"Badgers dig with strong clawed paws."}
+];
+
+// We’ll map a couple of emoji stand-ins for animals lacking a perfect emoji
+const EMOJI_OVERRIDE = {
+  "Tapir":"🐘", // stand-in visual
+  "Capybara":"🦫", // beaver emoji looks closer than hamster
+  "Bison":"🦬"
+};
+
+/* --- State -------------------------------------------------------------- */
+let deck = [];
+let index = 0;
+let score = 0;
+let streak = 0;
+let lives = 3;
+
+const $ = sel => document.querySelector(sel);
+const btnPaw = $("#btnPaw");
+const btnHoof = $("#btnHoof");
+const nameEl = $("#name");
+const emojiEl = $("#emoji");
+const diffLabel = $("#diffLabel");
+const bar = $("#bar");
+const levelPill = $("#levelPill");
+const good = $("#good");
+const bad = $("#bad");
+const scoreEl = $("#score");
+const streakEl = $("#streak");
+const livesEl = $("#lives");
+const overlay = $("#overlay");
+const finalTitle = $("#finalTitle");
+const finalText = $("#finalText");
+const finalScore = $("#finalScore");
+const finalEmoji = $("#finalEmoji");
+
+/* --- Helpers ------------------------------------------------------------ */
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function byDifficulty(a,b){ return a.diff - b.diff; }
+function computeLevelLabel(d){
+  return d===1 ? "Level 1 • Easy" : d===2 ? "Level 2 • Medium" : "Level 3 • Tricky";
+}
+function diffWord(d){ return d===1 ? "Easy" : d===2 ? "Medium" : "Tricky"; }
+
+function buildDeck(){
+  // Sort by diff, then shuffle within each bucket for gentle progression
+  const g1 = shuffle(ANIMALS.filter(a=>a.diff===1));
+  const g2 = shuffle(ANIMALS.filter(a=>a.diff===2));
+  const g3 = shuffle(ANIMALS.filter(a=>a.diff===3));
+  deck = [...g1, ...g2, ...g3];
+  // Replace any emoji with overrides if present
+  deck = deck.map(a => ({...a, emoji: EMOJI_OVERRIDE[a.name] ?? a.emoji}));
+}
+
+function render(){
+  const a = deck[index];
+  nameEl.textContent = a.name;
+  emojiEl.textContent = a.emoji ?? "🐾";
+  diffLabel.textContent = diffWord(a.diff);
+  levelPill.textContent = computeLevelLabel(a.diff);
+
+  // progress
+  const pct = Math.round((index / deck.length) * 100);
+  bar.style.width = pct + "%";
+
+  // hud
+  scoreEl.textContent = score;
+  streakEl.textContent = streak;
+  livesEl.textContent = lives;
+
+  // feedback hide
+  good.style.display = "none";
+  bad.style.display = "none";
+}
+
+function finish(win=true){
+  overlay.style.display = "grid";
+  finalEmoji.textContent = win ? "🎉" : "💡";
+  finalTitle.textContent = win ? "You finished!" : "Game over";
+  finalScore.textContent = score;
+  finalText.innerHTML = `Score: <b id="finalScore">${score}</b> • Accuracy: <b>${Math.round((score/deck.length)*100)}%</b>`;
+}
+
+function next(){
+  index++;
+  if(index >= deck.length){
+    finish(true);
+  } else {
+    render();
+  }
+}
+
+function flash(el){
+  el.style.display = "block";
+  setTimeout(()=>{ el.style.display = "none"; }, 900);
+}
+
+function answer(choice){
+  if(overlay.style.display === "grid") return;
+
+  const a = deck[index];
+  const correct = choice === a.answer;
+  if(correct){
+    score++;
+    streak++;
+    flash(good);
+  } else {
+    streak = 0;
+    lives--;
+    bad.textContent = `Not quite. ${a.fact}`;
+    flash(bad);
+    if(lives <= 0){
+      finish(false);
+      return;
+    }
+  }
+  next();
+}
+
+/* --- Events ------------------------------------------------------------- */
+btnPaw.addEventListener("click", ()=>answer("paw"));
+btnHoof.addEventListener("click", ()=>answer("hoof"));
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "ArrowLeft") answer("paw");
+  if(e.key === "ArrowRight") answer("hoof");
+  if(e.key.toLowerCase() === "r") start();
+});
+
+$("#restart").addEventListener("click", start);
+$("#playAgain").addEventListener("click", start);
+
+$("#seeAnswers").addEventListener("click", ()=>{
+  // simple answer review
+  overlay.style.display = "grid";
+  const lines = deck.map(a => `• ${a.name}: ${a.answer.toUpperCase()} — ${a.fact}`).join("\n");
+  alert("Answers:\n\n" + lines);
+});
+
+/* --- Start -------------------------------------------------------------- */
+function start(){
+  overlay.style.display = "none";
+  buildDeck();
+  index = 0; score = 0; streak = 0; lives = 3;
+  render();
+}
+start();
+</script>
+</body>
+</html>
